@@ -6,6 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Map;
 using Managers;
 using System;
+using Newtonsoft.Json;
 
 public class LevelSerializer : MonoBehaviour
 {
@@ -34,11 +35,13 @@ public class LevelSerializer : MonoBehaviour
         saveFile.saveableNodes = NodeToSaveable();
 
         string saveLocation = SaveLocation(saveName, true);
+        
+        File.WriteAllText(saveLocation, JsonConvert.SerializeObject(saveFile));
 
-        IFormatter formatter = new BinaryFormatter();
-        Stream stream = new FileStream(saveLocation, FileMode.Create, FileAccess.Write, FileShare.None);
-        formatter.Serialize(stream, saveFile);
-        stream.Close();
+        //IFormatter formatter = new BinaryFormatter();
+        //Stream stream = new FileStream(saveLocation, FileMode.Create, FileAccess.Write, FileShare.None);
+        //formatter.Serialize(stream, saveFile);
+        //stream.Close();
 
         Debug.Log("Level saved at " + saveLocation);
     }
@@ -72,7 +75,7 @@ public class LevelSerializer : MonoBehaviour
             Directory.CreateDirectory(saveLocation);
         }
 
-        return saveLocation + LevelName;
+        return saveLocation + LevelName + ".json";
     }
 
     public SaveFile ReturnSaveFile(string saveName)

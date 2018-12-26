@@ -4,6 +4,8 @@ using Map;
 using UI;
 using UnityEngine.EventSystems;
 using System.Linq;
+using Assets.Scripts.Player;
+using System.Collections.Generic;
 
 namespace Managers
 {
@@ -24,6 +26,10 @@ namespace Managers
         LevelObjectsAsset prevObject;
         float targetY;
 
+        private static LevelEditor _instance;
+
+        public static LevelEditor GetInstance() => _instance;
+
         public void Init()
         {
             sm = SessionMaster.GetInstance();
@@ -41,6 +47,11 @@ namespace Managers
 
             activeId = "grass";
             PaintAllInFloor(0);
+        }
+
+        private void Start()
+        {
+            _instance = this;
         }
 
         void Update()
@@ -67,6 +78,12 @@ namespace Managers
                     PaintTexture(n, activeId);
                 }
             }
+        }
+
+        public void PaintNodeFromPosition(int x, int y, int z)
+        {
+            Node n = grid.GetNode(x, y, z);
+            PaintTexture(n, activeId);
         }
 
         public void UpdateType(string id, PaintType targetType)
@@ -116,23 +133,26 @@ namespace Managers
 
         public void PaintTexture(Node n, string textureID)
         {
-            if (rm == null)
-                rm = ResourcesManager.singleton;
-
-            if (textureID == "air")
-                n.nodeType = NodeType.air;
-            else
-                n.nodeType = NodeType.ground;
-
-            TextureAsset txt = rm.GetTexture(textureID);
-            if(txt == null)
+            if(n != null)
             {
-                Debug.Log("No texture with id " + textureID + " found");
-                return;
-            }
+                if (rm == null)
+                    rm = ResourcesManager.singleton;
 
-            n.textureId = txt.id;
-            n.nr.UpdateGroundTexture(txt.material);
+                if (textureID == "air")
+                    n.nodeType = NodeType.air;
+                else
+                    n.nodeType = NodeType.ground;
+
+                TextureAsset txt = rm.GetTexture(textureID);
+                if (txt == null)
+                {
+                    Debug.Log("No texture with id " + textureID + " found");
+                    return;
+                }
+
+                n.textureId = txt.id;
+                n.nr.UpdateGroundTexture(txt.material);
+            }
         }
 
         void LevelObjectPlace(Node n, string id)
@@ -180,15 +200,42 @@ namespace Managers
 
         }
 
-        public void PaintLvlObj(Node n, LevelObjectsAsset obj, float y)
+        public void PaintLvlObj(Node n, LevelObjectsAsset obj, float y, ref List<MappedGameObject> list)
         {
             if(n.nr.IsObjectDuplicate(obj.id))
             {
                 //Object is placed on the same node more than once,
                 return;
             }
+            
+            GameObject go = Instantiate(obj.gameModel) as GameObject;
+
+            go.transform.parent = lvlManager.level_floors[n.y].objHolder.transform;
+            //go.transform.localPosition = n.nr.transform.position;
+            go.transform.localPosition = new Vector3(n.nr.transform.position.x + 1.255f, n.nr.transform.position.y, n.nr.transform.position.z + 1.255f);
+
+            Quaternion targetRotation = Quaternion.Euler(0, y, 0);
+            go.transform.rotation = targetRotation;
+            Map.LevelObjectsActual lvlobj = new LevelObjectsActual();
+            lvlobj.id = obj.id;
+            lvlobj.objReference = go;
+            lvlobj.targetY = targetY;
+            n.nr.objectsOnNode.Add(lvlobj);
+
+            if(list != null)
+                list.Add(new MappedGameObject { X = n.x, Y = n.y, Z = n.z, GameObject = go });
+        }
+
+        public void PaintLvlObj(Node n, LevelObjectsAsset obj, float y)
+        {
+            if (n.nr.IsObjectDuplicate(obj.id))
+            {
+                //Object is placed on the same node more than once,
+                return;
+            }
 
             GameObject go = Instantiate(obj.gameModel) as GameObject;
+
             go.transform.parent = lvlManager.level_floors[n.y].objHolder.transform;
             //go.transform.localPosition = n.nr.transform.position;
             go.transform.localPosition = new Vector3(n.nr.transform.position.x + 1.255f, n.nr.transform.position.y, n.nr.transform.position.z + 1.255f);

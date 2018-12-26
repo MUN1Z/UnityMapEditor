@@ -5,7 +5,7 @@ public class CameraHandler : MonoBehaviour {
 
     Transform cameraMover;
     
-    public float cameraSpeed = 3;
+    public float cameraSpeed = 100;
     bool rotating;
 
 	void Start () {
@@ -18,16 +18,16 @@ public class CameraHandler : MonoBehaviour {
 
     void HandleCameraMovement()
     {
-        float hor = Input.GetAxis("Horizontal");
-        float vert = Input.GetAxis("Vertical");
+        //float hor = Input.GetAxis("Horizontal");
+        //float vert = Input.GetAxis("Vertical");
 
-        Vector3 right = Camera.main.transform.right * hor * cameraSpeed;
-        Vector3 forward = Camera.main.transform.forward * vert * cameraSpeed;
-        forward.y = 0;
+        //Vector3 right = Camera.main.transform.right * hor * cameraSpeed;
+        //Vector3 forward = Camera.main.transform.forward * vert * cameraSpeed;
+        //forward.y = 0;
 
-        Vector3 newPos = right + forward;
+        //Vector3 newPos = right + forward;
 
-        cameraMover.transform.position += newPos;
+        //cameraMover.transform.position += newPos;
         
         if (Input.GetKey(KeyCode.Q))
         {

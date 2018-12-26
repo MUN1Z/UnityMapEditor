@@ -222,7 +222,7 @@ namespace MapEditor.Edit.Windows
                             try
                             {
                                 GridBase.GetInstance().ClearMap();
-                                GridBase.GetInstance().LoadMap(mapName);
+                                GridBase.GetInstance().LoadMap3(mapName);
                                 LevelManager.singleton.ChangeFloor((int)level);
                             }
                             catch

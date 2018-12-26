@@ -51,7 +51,7 @@ namespace Managers
             InitSession(SessionType.menu);
             //after the initialization phase of the game, you are ready to start the session
         }
-
+        
         public void InitSession(SessionType st)
         {
             menuManager.CloseAll();
